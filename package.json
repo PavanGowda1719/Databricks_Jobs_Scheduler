@@ -1,0 +1,24 @@
+{
+  "name": "databricks_job_scheduler",
+  "version": "1.0.0",
+  "description": "Databricks_Jobs_Scheduler_new_poc",
+  "main": "test-connection.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PavanGowda1719/Databricks_Jobs_Scheduler.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/PavanGowda1719/Databricks_Jobs_Scheduler/issues"
+  },
+  "homepage": "https://github.com/PavanGowda1719/Databricks_Jobs_Scheduler#readme",
+  "dependencies": {
+    "dotenv": "^18.0.0"
+  }
+}

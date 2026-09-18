@@ -1,0 +1,24 @@
+{
+  "workspaces": {
+    "dev": {
+      "name": "Development",
+      "host": "https://dbc-48d26f7e-6eda.cloud.databricks.com",
+      "tokenEnvVar": "DATABRICKS_TOKEN"
+    }
+  },
+  "pipelines": [
+    {
+      "id": "sales-transformation",
+      "name": "Sales Transformation - 2nd Business Day Monthly",
+      "description": "Monthly sales data transformation that runs on the 2nd business day of each month",
+      "databricksJobId": 92104123827666,
+      "workspace": "dev",
+      "category": "ETL",
+      "tags": ["sales", "monthly", "transformation"],
+      "owner": "data-team",
+      "slaMinutes": 60,
+      "defaultParams": {}
+    }
+  ]
+}
+
