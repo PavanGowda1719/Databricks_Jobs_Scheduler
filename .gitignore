@@ -6,3 +6,5 @@
 node_modules/
 dist/
 
+# Local database & runtime data
+backend/data/
