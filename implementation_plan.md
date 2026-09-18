@@ -202,6 +202,7 @@ erDiagram
         string category
         string owner
         int sla_minutes
+        string_array upstream_dependencies "IDs of prerequisite pipelines"
     }
     SCHEDULES {
         int id PK
@@ -218,13 +219,14 @@ erDiagram
         int id PK
         string pipeline_id FK
         int databricks_run_id
-        string status "pending | running | succeeded | failed | cancelled"
-        string trigger_type "manual | scheduled"
+        string status "pending | waiting_upstream | running | succeeded | failed | blocked | cancelled"
+        string trigger_type "manual | scheduled | dependency_triggered"
         datetime started_at
         datetime completed_at
         int duration_seconds
         string error_message "nullable"
         string triggered_by
+        string waiting_for_pipeline_id "nullable"
     }
     HOLIDAYS {
         int id PK
@@ -235,6 +237,7 @@ erDiagram
     }
     PIPELINES ||--o{ SCHEDULES : "has"
     PIPELINES ||--o{ RUN_HISTORY : "has"
+    PIPELINES ||--o{ PIPELINES : "depends on (upstream)"
 ```
 
 ---
@@ -311,35 +314,58 @@ erDiagram
 
 ---
 
+---
+
 ## 🛤️ Implementation Phases
 
-### Phase 1 — Core (Week 1)
-- [ ] Set up React frontend + Node.js backend
-- [ ] Connect to Databricks API
-- [ ] Pipeline list page (from config file)
-- [ ] Manual trigger ("Run Now" button)
-- [ ] Basic status display (polling every 30s)
+### Phase 1 — Core Build ✅ (COMPLETED)
+- [x] Set up React frontend + Node.js backend
+- [x] Connect to Databricks REST API 2.1
+- [x] Pipeline list page with live search & tags
+- [x] Manual trigger ("Run Now" button with JSON parameters modal)
+- [x] Automatic run status polling & sync (5-second Databricks reconciler)
+- [x] Indian Holiday Calendar pre-seeded (2025-2027)
+- [x] Nth Business Day of Month scheduling engine
 
-### Phase 2 — Scheduling (Week 2)  
-- [ ] Schedule creation UI (cron builder)
-- [ ] Business day calculator with holiday awareness
-- [ ] Holiday calendar management page
-- [ ] Backend scheduler (node-cron)
-- [ ] Next run time display
+---
 
-### Phase 3 — Dashboard & Polish (Week 3)
-- [ ] Dashboard page with charts (success rate, run counts)
-- [ ] Run history table with filters
-- [ ] Status badges and real-time updates
-- [ ] Search and filter pipelines
-- [ ] Error message display for failed runs
+### Phase 2 — Dependencies & UI Redesign 🚀 (CURRENT FOCUS)
 
-### Phase 4 — Bonus Features (Week 4)
-- [ ] Authentication (login page)
-- [ ] Email notifications on failure
-- [ ] Audit log
-- [ ] Pipeline dependencies
-- [ ] Dark mode
+#### 1. 🔗 Pipeline Dependency Engine (DAG Execution)
+- **Upstream Dependency Rule:** A pipeline can declare one or more `upstream_dependencies` (e.g. Pipeline B requires Pipeline A).
+- **Execution State Machine:**
+  - When Pipeline B is triggered (manual or scheduled), it checks all upstream pipelines.
+  - If upstream is **RUNNING / PENDING**: Pipeline B transitions to **WAITING_FOR_UPSTREAM / PENDING**.
+  - If upstream completes with **SUCCESS**: Pipeline B automatically triggers on Databricks.
+  - If upstream completes with **FAILED / CANCELLED**: Pipeline B transitions to **UPSTREAM_FAILED / BLOCKED** (does NOT trigger downstream job, preventing corrupt/partial data runs).
+- **Recommended Architectural Enhancements:**
+  - **Dependency DAG Visualizer:** Interactive visual flow (Mermaid / React Flow) showing Upstream ➔ Downstream relationships.
+  - **Auto-Retry & Backoff:** If upstream fails due to transient compute error, allow 1-click retry of the entire dependency chain.
+  - **Timeout Safeguard:** If upstream stays in running/pending longer than max SLA timeout, auto-fail or alert the downstream job to avoid infinite waiting loops.
+
+#### 2. 🎨 UI Redesign: Rose Pink & Crisp White Theme + Data Engineering Aesthetics
+- **Color Palette & Design System:**
+  - **Primary Accents:** Soft rose pink (`#f43f5e`, `#fb7185`), rose gold, and blush highlights (`#fff1f2`).
+  - **Backgrounds:** Crisp ultra-clean whites (`#ffffff`) with subtle, clean slate-rose tinted card borders (`#ffe4e6`).
+  - **Typography & Polish:** High-contrast slate typography (`#1e293b`), elegant rounded cards, and smooth micro-animations.
+- **Data Engineering Brand Imagery & Badges:**
+  - Subtle, clean data pipeline iconography (Databricks 🧱, Spark ⚡, Delta Lake 🌊, Airflow 🌬️, ETL storage pipelines).
+  - Modern data pipeline architecture flow background accents without visual clutter (tasteful gradient mesh + geometric data nodes).
+  - Enhanced status badges with luminous glow indicators (Success, Waiting for Upstream, Running, Blocked).
+
+---
+
+### Phase 3 — Enterprise Monitoring & Multi-Workspace (Week 3)
+- [ ] Multi-workspace toggle (Dev, UAT, Prod) in header
+- [ ] Run comparison inspector (compare two runs side-by-side: duration, logs, parameters)
+- [ ] Email & Slack webhook alerts on pipeline failure
+- [ ] Audit logs (who triggered what job and when)
+
+---
+
+### Phase 4 — Cloud & Docker Deployment (Week 4)
+- [ ] Option 1: Vercel (Frontend) + Render (Backend) automated deployment
+- [ ] Option 2: Docker Compose & Azure Container Registry (ACR) + Azure App Service CI/CD GitHub Actions
 
 ---
 
