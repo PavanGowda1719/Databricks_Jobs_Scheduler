@@ -126,3 +126,4 @@ export default function TriggerButton({ pipelineId, pipelineName, onTriggered, v
     </>
   );
 }
+

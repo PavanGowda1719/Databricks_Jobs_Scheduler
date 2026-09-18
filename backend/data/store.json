@@ -1,6 +1,19 @@
 {
   "schedules": [],
-  "run_history": [],
+  "run_history": [
+    {
+      "id": 1,
+      "pipeline_id": "sales-transformation",
+      "databricks_run_id": 389400714564388,
+      "status": "SUCCESS",
+      "trigger_type": "manual",
+      "started_at": "2026-09-18T22:04:42.905Z",
+      "completed_at": "2026-09-18T22:05:00.253Z",
+      "duration_seconds": 16,
+      "error_message": null,
+      "triggered_by": "user"
+    }
+  ],
   "holidays": [
     {
       "id": 1,
@@ -411,7 +424,7 @@
   ],
   "_nextId": {
     "schedules": 1,
-    "run_history": 1,
+    "run_history": 2,
     "holidays": 59
   }
 }

@@ -39,3 +39,4 @@ export default function StatsCard({ title, value, icon: Icon, color = 'blue', su
     </div>
   );
 }
+

@@ -20,6 +20,34 @@ class SchedulerService {
 
     // Check time-based schedules every minute
     cron.schedule('* * * * *', () => this._checkTimeBasedSchedules());
+
+    // Poll active runs every 5 seconds to sync Databricks completion status
+    cron.schedule('*/5 * * * * *', () => this.syncActiveRuns());
+  }
+
+  async syncActiveRuns() {
+    const activeRuns = db.getAll('run_history').filter(
+      r => r.databricks_run_id && (r.status === 'RUNNING' || r.status === 'PENDING')
+    );
+
+    for (const run of activeRuns) {
+      const pipeline = pipelineConfig.pipelines.find(p => p.id === run.pipeline_id);
+      if (!pipeline) continue;
+
+      try {
+        const status = await databricksService.getRunStatus(pipeline.workspace, run.databricks_run_id);
+        const resultState = status.resultState || status.state;
+        if (resultState && resultState !== run.status) {
+          db.update('run_history', run.id, {
+            status: resultState,
+            completed_at: status.endTime,
+            duration_seconds: status.runDuration,
+          });
+        }
+      } catch (e) {
+        // ignore network error
+      }
+    }
   }
 
   _registerSchedule(schedule) {

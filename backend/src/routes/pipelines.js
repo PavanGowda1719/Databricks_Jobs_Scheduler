@@ -7,13 +7,32 @@ const pipelineConfig = require('../config/pipelines.json');
 // GET /api/pipelines
 router.get('/', async (req, res, next) => {
   try {
-    const pipelines = pipelineConfig.pipelines.map(p => {
-      const runs = db.query('run_history', {
+    const pipelines = await Promise.all(pipelineConfig.pipelines.map(async p => {
+      let runs = db.query('run_history', {
         filter: { pipeline_id: p.id }, sort: 'started_at', order: 'desc', limit: 1,
       });
+
+      let latest = runs[0] || null;
+
+      // If status is RUNNING/PENDING, check Databricks directly
+      if (latest && (latest.status === 'RUNNING' || latest.status === 'PENDING') && latest.databricks_run_id) {
+        try {
+          const status = await databricksService.getRunStatus(p.workspace, latest.databricks_run_id);
+          const resultState = status.resultState || status.state;
+          if (resultState && resultState !== latest.status) {
+            latest = db.update('run_history', latest.id, {
+              status: resultState,
+              completed_at: status.endTime,
+              duration_seconds: status.runDuration,
+            });
+          }
+        } catch (e) {}
+      }
+
       const schedules = db.getAll('schedules', { pipeline_id: p.id }).filter(s => s.enabled);
-      return { ...p, latestRun: runs[0] || null, schedules, status: runs[0]?.status || 'NEVER_RUN' };
-    });
+      return { ...p, latestRun: latest, schedules, status: latest?.status || 'NEVER_RUN' };
+    }));
+
     res.json({ pipelines });
   } catch (err) { next(err); }
 });
