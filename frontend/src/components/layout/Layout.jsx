@@ -3,12 +3,13 @@ import Sidebar from './Sidebar';
 
 export default function Layout() {
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-[#fdfafb] bg-data-grid text-slate-800">
       <Sidebar />
       <main className="flex-1 p-8 overflow-auto">
-        <Outlet />
+        <div className="max-w-7xl mx-auto">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
 }
-

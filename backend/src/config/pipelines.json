@@ -4,6 +4,16 @@
       "name": "Development",
       "host": "https://dbc-48d26f7e-6eda.cloud.databricks.com",
       "tokenEnvVar": "DATABRICKS_TOKEN"
+    },
+    "uat": {
+      "name": "User Acceptance Testing (UAT)",
+      "host": "https://dbc-48d26f7e-6eda.cloud.databricks.com",
+      "tokenEnvVar": "DATABRICKS_TOKEN_UAT"
+    },
+    "prod": {
+      "name": "Production",
+      "host": "https://dbc-48d26f7e-6eda.cloud.databricks.com",
+      "tokenEnvVar": "DATABRICKS_TOKEN_PROD"
     }
   },
   "pipelines": [
@@ -14,11 +24,52 @@
       "databricksJobId": 92104123827666,
       "workspace": "dev",
       "category": "ETL",
-      "tags": ["sales", "monthly", "transformation"],
+      "tags": [
+        "sales",
+        "monthly",
+        "transformation"
+      ],
       "owner": "data-team",
       "slaMinutes": 60,
-      "defaultParams": {}
+      "defaultParams": {},
+      "upstreamDependencies": []
+    },
+    {
+      "id": "sales-analytics-reporting",
+      "name": "Sales Analytics & Reporting (Downstream)",
+      "description": "Downstream reporting pipeline that generates executive summaries once sales transformation succeeds",
+      "databricksJobId": 91034503054714,
+      "workspace": "dev",
+      "category": "BI & Analytics",
+      "tags": [
+        "analytics",
+        "reporting",
+        "downstream"
+      ],
+      "owner": "bi-team",
+      "slaMinutes": 30,
+      "defaultParams": {},
+      "upstreamDependencies": [
+        "sales-transformation"
+      ]
+    },
+    {
+      "id": "daily-delta-lake-vacuum",
+      "name": "Daily Delta Lake Vacuum",
+      "description": "Databricks pipeline for Daily Delta Lake Vacuum",
+      "databricksJobId": 92104123827666,
+      "workspace": "dev",
+      "category": "Maintenance",
+      "tags": [
+        "vacuum",
+        "maintenance"
+      ],
+      "owner": "data-team",
+      "slaMinutes": 60,
+      "defaultParams": {},
+      "upstreamDependencies": [
+        "sales-transformation"
+      ]
     }
   ]
 }
-

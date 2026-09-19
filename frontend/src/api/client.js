@@ -19,10 +19,13 @@ export const api = {
   // Pipelines
   getPipelines: () => request('/pipelines'),
   getPipeline: (id) => request(`/pipelines/${id}`),
-  triggerPipeline: (id, params = {}) =>
-    request(`/pipelines/${id}/trigger`, { method: 'POST', body: JSON.stringify({ params }) }),
+  createPipeline: (data) =>
+    request('/pipelines', { method: 'POST', body: JSON.stringify(data) }),
+  triggerPipeline: (id, params = {}, force = false) =>
+    request(`/pipelines/${id}/trigger`, { method: 'POST', body: JSON.stringify({ params, force }) }),
   getPipelineRuns: (id) => request(`/pipelines/${id}/runs`),
   getRunStatus: (pipelineId, runId) => request(`/pipelines/${pipelineId}/status/${runId}`),
+  getDependencyGraph: () => request('/pipelines/dependencies/graph'),
 
   // Schedules
   getSchedules: () => request('/schedules'),
@@ -41,5 +44,18 @@ export const api = {
     request(`/holidays/${id}`, { method: 'DELETE' }),
   getNthBusinessDay: (year, month, n) =>
     request(`/holidays/nth-business-day?year=${year}&month=${month}&n=${n}`),
+
+  // Audit Logs
+  getAuditLogs: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return request(`/audit-logs${q ? `?${q}` : ''}`);
+  },
+
+  // Alert Settings & Webhooks
+  getAlertConfig: () => request('/alerts/config'),
+  saveAlertConfig: (data) =>
+    request('/alerts/config', { method: 'POST', body: JSON.stringify(data) }),
+  testAlertWebhook: (url) =>
+    request('/alerts/test', { method: 'POST', body: JSON.stringify({ url }) }),
 };
 

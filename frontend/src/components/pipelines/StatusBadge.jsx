@@ -3,33 +3,43 @@ export default function StatusBadge({ status }) {
 
   const configs = {
     SUCCESS: {
-      bg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      bg: 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-xs shadow-emerald-500/10',
       dot: 'bg-emerald-500',
       label: 'Succeeded',
     },
     SUCCEEDED: {
-      bg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      bg: 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-xs shadow-emerald-500/10',
       dot: 'bg-emerald-500',
       label: 'Succeeded',
     },
     RUNNING: {
-      bg: 'bg-amber-50 text-amber-700 border-amber-200',
-      dot: 'bg-amber-500 animate-ping',
+      bg: 'bg-rose-50 text-rose-700 border-rose-200 shadow-xs shadow-rose-500/20',
+      dot: 'bg-rose-500',
       label: 'Running',
     },
     PENDING: {
-      bg: 'bg-blue-50 text-blue-700 border-blue-200',
-      dot: 'bg-blue-400',
+      bg: 'bg-pink-50 text-pink-700 border-pink-200 shadow-xs',
+      dot: 'bg-pink-400',
       label: 'Pending',
     },
+    WAITING_FOR_UPSTREAM: {
+      bg: 'bg-purple-50 text-purple-700 border-purple-200 shadow-xs shadow-purple-500/20',
+      dot: 'bg-purple-500',
+      label: 'Waiting on Upstream',
+    },
+    BLOCKED: {
+      bg: 'bg-red-50 text-red-700 border-red-300 shadow-xs shadow-red-500/15',
+      dot: 'bg-red-600',
+      label: 'Blocked',
+    },
     FAILED: {
-      bg: 'bg-rose-50 text-rose-700 border-rose-200',
-      dot: 'bg-rose-500',
+      bg: 'bg-rose-50 text-rose-700 border-rose-200 shadow-xs',
+      dot: 'bg-rose-600',
       label: 'Failed',
     },
     ERROR: {
-      bg: 'bg-rose-50 text-rose-700 border-rose-200',
-      dot: 'bg-rose-500',
+      bg: 'bg-rose-50 text-rose-700 border-rose-200 shadow-xs',
+      dot: 'bg-rose-600',
       label: 'Failed',
     },
     CANCELLED: {
@@ -43,8 +53,8 @@ export default function StatusBadge({ status }) {
       label: 'Terminated',
     },
     NEVER_RUN: {
-      bg: 'bg-slate-100 text-slate-500 border-slate-200',
-      dot: 'bg-slate-400',
+      bg: 'bg-slate-50 text-slate-500 border-slate-200',
+      dot: 'bg-slate-300',
       label: 'Never Run',
     },
   };
@@ -57,7 +67,10 @@ export default function StatusBadge({ status }) {
     >
       <span className="relative flex h-2 w-2">
         {normalized === 'RUNNING' && (
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+        )}
+        {normalized === 'WAITING_FOR_UPSTREAM' && (
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
         )}
         <span className={`relative inline-flex rounded-full h-2 w-2 ${current.dot}`}></span>
       </span>
@@ -65,4 +78,3 @@ export default function StatusBadge({ status }) {
     </span>
   );
 }
-

@@ -14,7 +14,9 @@ const DEFAULT_STORE = {
   schedules: [],
   run_history: [],
   holidays: [],
-  _nextId: { schedules: 1, run_history: 1, holidays: 1 },
+  audit_logs: [],
+  settings: [],
+  _nextId: { schedules: 1, run_history: 1, holidays: 1, audit_logs: 1, settings: 1 },
 };
 
 class JsonStore {

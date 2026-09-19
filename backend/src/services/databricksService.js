@@ -6,9 +6,9 @@ class DatabricksService {
   }
 
   _getAuth(workspaceId) {
-    const workspace = this.workspaces[workspaceId];
+    const workspace = this.workspaces[workspaceId] || this.workspaces['dev'];
     if (!workspace) throw new Error(`Workspace "${workspaceId}" not found`);
-    const token = process.env[workspace.tokenEnvVar];
+    const token = process.env[workspace.tokenEnvVar] || process.env.DATABRICKS_TOKEN;
     if (!token) throw new Error(`Token env var "${workspace.tokenEnvVar}" not set`);
     return { host: workspace.host, token };
   }

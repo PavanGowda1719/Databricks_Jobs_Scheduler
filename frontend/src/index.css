@@ -1,1 +1,45 @@
 @import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #ffffff;
+    color: #1e293b;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Subtle clean data engineering grid background */
+.bg-data-grid {
+  background-image: radial-gradient(rgba(244, 63, 94, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Elegant custom scrollbar in rose pink */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #fff1f2;
+}
+::-webkit-scrollbar-thumb {
+  background: #fda4af;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #f43f5e;
+}
+
+/* Luminous Glow Animation */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(244, 63, 94, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(244, 63, 94, 0.85);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s infinite ease-in-out;
+}

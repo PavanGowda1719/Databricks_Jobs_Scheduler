@@ -12,8 +12,10 @@ router.get('/stats', (req, res) => {
   const todayRuns = allRuns.filter(r => r.started_at && r.started_at.startsWith(today));
 
   const succeeded = todayRuns.filter(r => r.status === 'SUCCEEDED' || r.status === 'SUCCESS').length;
-  const failed = todayRuns.filter(r => r.status === 'FAILED' || r.status === 'ERROR').length;
+  const failed = todayRuns.filter(r => r.status === 'FAILED' || r.status === 'ERROR' || r.status === 'BLOCKED').length;
   const running = allRuns.filter(r => r.status === 'RUNNING' || r.status === 'PENDING').length;
+  const waiting = allRuns.filter(r => r.status === 'WAITING_FOR_UPSTREAM').length;
+  const blocked = allRuns.filter(r => r.status === 'BLOCKED').length;
 
   const recentRuns = db.query('run_history', { sort: 'started_at', order: 'desc', limit: 10 })
     .map(run => {
@@ -44,7 +46,7 @@ router.get('/stats', (req, res) => {
 
   res.json({
     totalPipelines,
-    todayStats: { total: todayRuns.length, succeeded, failed, running },
+    todayStats: { total: todayRuns.length, succeeded, failed, running, waiting, blocked },
     recentRuns,
     trend,
     allTimeStats: statusCounts,

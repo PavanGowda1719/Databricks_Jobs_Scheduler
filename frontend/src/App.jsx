@@ -5,6 +5,8 @@ import PipelinesPage from './pages/PipelinesPage';
 import PipelineDetailPage from './pages/PipelineDetailPage';
 import SchedulesPage from './pages/SchedulesPage';
 import HolidaysPage from './pages/HolidaysPage';
+import AuditLogsPage from './pages/AuditLogsPage';
+import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
   return (
@@ -16,6 +18,8 @@ export default function App() {
           <Route path="pipelines/:id" element={<PipelineDetailPage />} />
           <Route path="schedules" element={<SchedulesPage />} />
           <Route path="holidays" element={<HolidaysPage />} />
+          <Route path="audit-logs" element={<AuditLogsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

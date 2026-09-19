@@ -2,6 +2,9 @@ const cron = require('node-cron');
 const db = require('../db/database');
 const databricksService = require('./databricksService');
 const holidayService = require('./holidayService');
+const dependencyService = require('./dependencyService');
+const alertService = require('./alertService');
+const auditService = require('./auditService');
 const pipelineConfig = require('../config/pipelines.json');
 
 class SchedulerService {
@@ -43,6 +46,33 @@ class SchedulerService {
             completed_at: status.endTime,
             duration_seconds: status.runDuration,
           });
+
+          // Send webhook alert on failure
+          if (resultState === 'FAILED' || resultState === 'ERROR') {
+            await alertService.sendAlert({
+              pipelineName: pipeline.name,
+              runId: run.databricks_run_id,
+              status: resultState,
+              errorMessage: status.stateMessage || 'Job failed in Databricks execution',
+              duration: status.runDuration,
+              workspace: pipeline.workspace,
+              url: status.runPageUrl,
+            });
+
+            auditService.log({
+              action: 'PIPELINE_FAILED',
+              entityType: 'PIPELINE',
+              entityId: pipeline.id,
+              user: 'System Reconciler',
+              details: `Pipeline run #${run.databricks_run_id} failed: ${status.stateMessage || ''}`,
+              status: 'FAILED',
+            });
+          }
+
+          // Check if this completion unblocks or triggers any downstream pipelines
+          if (resultState !== 'RUNNING' && resultState !== 'PENDING') {
+            await dependencyService.processDependencyChain(pipeline.id, resultState, databricksService);
+          }
         }
       } catch (e) {
         // ignore network error
@@ -98,8 +128,44 @@ class SchedulerService {
       return;
     }
 
-    console.log(`🚀 Executing scheduled run for "${pipeline.name}"`);
+    console.log(`🚀 Checking scheduled trigger for "${pipeline.name}"`);
 
+    // Check upstream dependency status
+    const depCheck = dependencyService.checkUpstreamStatus(pipeline.id);
+
+    if (depCheck.status === 'WAITING') {
+      console.log(`⏳ Pipeline "${pipeline.name}" has unfulfilled upstream dependencies. Moving to WAITING_FOR_UPSTREAM: ${depCheck.message}`);
+      db.insert('run_history', {
+        pipeline_id: pipeline.id,
+        databricks_run_id: null,
+        status: 'WAITING_FOR_UPSTREAM',
+        trigger_type: 'scheduled',
+        started_at: new Date().toISOString(),
+        completed_at: null,
+        duration_seconds: null,
+        error_message: depCheck.message,
+        triggered_by: 'scheduler',
+      });
+      return;
+    }
+
+    if (depCheck.status === 'BLOCKED') {
+      console.log(`🚫 Pipeline "${pipeline.name}" upstream dependencies failed. Moving to BLOCKED: ${depCheck.message}`);
+      db.insert('run_history', {
+        pipeline_id: pipeline.id,
+        databricks_run_id: null,
+        status: 'BLOCKED',
+        trigger_type: 'scheduled',
+        started_at: new Date().toISOString(),
+        completed_at: new Date().toISOString(),
+        duration_seconds: null,
+        error_message: depCheck.message,
+        triggered_by: 'scheduler',
+      });
+      return;
+    }
+
+    // Upstreams are CLEAR (or no dependencies configured)
     const historyRecord = db.insert('run_history', {
       pipeline_id: pipeline.id,
       databricks_run_id: null,

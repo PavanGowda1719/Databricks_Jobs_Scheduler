@@ -37,6 +37,8 @@ app.use('/api/pipelines', require('./routes/pipelines'));
 app.use('/api/schedules', require('./routes/schedules'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/holidays', require('./routes/holidays'));
+app.use('/api/audit-logs', require('./routes/auditLogs'));
+app.use('/api/alerts', require('./routes/alerts'));
 
 // Health check
 app.get('/api/health', (req, res) => {

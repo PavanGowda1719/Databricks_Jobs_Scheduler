@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: databricks-scheduler-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node src/app.js
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: NODE_ENV
+        value: production
+      - key: DATABRICKS_HOST
+        sync: false
+      - key: DATABRICKS_TOKEN
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+
